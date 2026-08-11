@@ -1,19 +1,30 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
-import axios from "axios";
+import {
+  addExpense,
+  updateExpense,
+} from "../../services/expenseService";
 
-function AddExpense({ onClose, onExpenseAdded }) {
+function AddExpense({
+  onClose,
+  onExpenseAdded,
+  editingExpense = null,
+}) {
   const [formData, setFormData] = useState({
-    title: "",
-    amount: "",
-    category: "Food",
-    paymentMethod: "UPI",
-    date: "",
-    note: "",
+    title: editingExpense?.title || "",
+    amount: editingExpense?.amount || "",
+    category: editingExpense?.category || "Food",
+    paymentMethod: editingExpense?.paymentMethod || "UPI",
+    date: editingExpense?.date
+      ? new Date(editingExpense.date).toISOString().split("T")[0]
+      : "",
+    note: editingExpense?.note || "",
   });
 
   const [loading, setLoading] = useState(false);
+
+  const isEditing = !!editingExpense;
 
   const handleChange = (e) => {
     setFormData({
@@ -32,19 +43,20 @@ function AddExpense({ onClose, onExpenseAdded }) {
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      let response;
 
-      const response = await axios.post(
-        "http://localhost:5000/api/expenses/add",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      if (isEditing) {
+        response = await updateExpense(
+          editingExpense._id,
+          formData
+        );
 
-      toast.success("Expense added successfully 🎉");
+        toast.success("Expense updated successfully ✨");
+      } else {
+        response = await addExpense(formData);
+
+        toast.success("Expense added successfully 🎉");
+      }
 
       if (onExpenseAdded) {
         onExpenseAdded(response.data.expense);
@@ -56,7 +68,10 @@ function AddExpense({ onClose, onExpenseAdded }) {
       console.log(error);
 
       toast.error(
-        error.response?.data?.message || "Failed to add expense"
+        error.response?.data?.message ||
+        (isEditing
+          ? "Failed to update expense"
+          : "Failed to add expense")
       );
     } finally {
       setLoading(false);
@@ -66,19 +81,23 @@ function AddExpense({ onClose, onExpenseAdded }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
 
-  <div className="w-full max-w-xl bg-slate-900 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-xl bg-slate-900 rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
 
           <div>
+
             <h2 className="text-2xl font-bold text-white">
-              Add Expense
+              {isEditing ? "Edit Expense" : "Add Expense"}
             </h2>
 
             <p className="text-slate-400 text-sm mt-1">
-              Record a new expense
+              {isEditing
+                ? "Update your expense details"
+                : "Record a new expense"}
             </p>
+
           </div>
 
           <button
@@ -215,7 +234,13 @@ function AddExpense({ onClose, onExpenseAdded }) {
               disabled={loading}
               className="w-1/2 p-3 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-semibold hover:scale-[1.02] transition disabled:opacity-50"
             >
-              {loading ? "Saving..." : "Save Expense"}
+              {loading
+                ? isEditing
+                  ? "Updating..."
+                  : "Saving..."
+                : isEditing
+                  ? "Update Expense"
+                  : "Save Expense"}
             </button>
 
           </div>
