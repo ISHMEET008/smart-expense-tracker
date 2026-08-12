@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ExpenseChart from "../components/dashboard/ExpenseChart";
 import {
   Pencil,
   Trash2,
@@ -26,6 +27,7 @@ import toast from "react-hot-toast";
 function Dashboard() {
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [expenses, setExpenses] = useState([]);
 
   const [summary, setSummary] = useState({
@@ -41,6 +43,8 @@ function Dashboard() {
     highestExpense: 0,
     totalExpenses: 0,
   });
+
+  
 
   // ================= FETCH DATA =================
 
@@ -99,6 +103,7 @@ function Dashboard() {
   const handleEdit = (expense) => {
     setEditingExpense(expense);
   };
+  
 
   const categoryColors = {
   Food: "bg-orange-500/20 text-orange-400",
@@ -127,6 +132,13 @@ const getPaymentIcon = (method) => {
       return <Wallet size={16} />;
   }
 };
+
+  const filteredExpenses =
+  selectedCategory === "All"
+    ? expenses
+    : expenses.filter(
+        (expense) => expense.category === selectedCategory
+      );
 
   return (
     <div className="flex bg-slate-950 min-h-screen">
@@ -184,6 +196,12 @@ const getPaymentIcon = (method) => {
 
           <ReportSummary report={report} />
 
+          <ExpenseChart
+  expenses={expenses}
+  selectedCategory={selectedCategory}
+  setSelectedCategory={setSelectedCategory}
+/>
+
           {/* ================= EXPENSES ================= */}
 
           <div className="mt-8">
@@ -191,7 +209,7 @@ const getPaymentIcon = (method) => {
               Your Expenses
             </h3>
 
-            {expenses.length === 0 ? (
+           {filteredExpenses.length === 0 ? (
               <div className="bg-slate-900 border border-dashed border-slate-700 rounded-2xl p-10 flex flex-col items-center justify-center text-center">
                 <div className="text-6xl mb-4">📂</div>
 
@@ -216,7 +234,7 @@ const getPaymentIcon = (method) => {
               </div>
             ) : (
               <div className="space-y-3">
-                {expenses.map((expense) => (
+                {filteredExpenses.map((expense) => (
                   <div
                     key={expense._id}
                     className="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center justify-between hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 transition-all duration-300"
