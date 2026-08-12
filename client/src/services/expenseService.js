@@ -78,3 +78,15 @@ export const deleteExpense = (id) => {
   });
 
 };
+
+// ================= REPORT =================
+
+export const getExpenseReport = (period) => {
+  const token = localStorage.getItem("token");
+
+  return API.get(`/report?period=${period}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
