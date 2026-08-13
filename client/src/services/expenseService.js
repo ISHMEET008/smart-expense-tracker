@@ -90,3 +90,14 @@ export const getExpenseReport = (period) => {
     },
   });
 };
+
+
+export const getAnalytics = () => {
+  const token = localStorage.getItem("token");
+
+  return API.get("/analytics", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

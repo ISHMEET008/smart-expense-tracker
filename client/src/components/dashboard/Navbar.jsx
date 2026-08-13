@@ -1,6 +1,6 @@
 import { Bell } from "lucide-react";
 
-function Navbar() {
+function Navbar({ title = "Dashboard" }) {
   const user = JSON.parse(localStorage.getItem("user"));
 
   return (
@@ -8,8 +8,8 @@ function Navbar() {
 
       {/* Left */}
       <h1 className="text-3xl font-bold text-white">
-        Dashboard
-      </h1>
+  {title}
+</h1>
 
       {/* Right */}
       <div className="flex items-center gap-5">

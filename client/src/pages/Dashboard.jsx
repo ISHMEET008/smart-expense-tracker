@@ -1,3 +1,4 @@
+<Navbar title="Dashboard" />
 import { useEffect, useState } from "react";
 import ExpenseChart from "../components/dashboard/ExpenseChart";
 import {
