@@ -1,6 +1,10 @@
 import CategoryChart from "../components/analytics/CategoryChart";
 import MonthlyTrendChart from "../components/analytics/MonthlyTrendChart";
 import PaymentMethodChart from "../components/analytics/PaymentMethodChart";
+import WeekdayChart from "../components/analytics/WeekdayChart";
+import MonthComparisonCard from "../components/analytics/MonthComparisonCard";
+import exportCSV from "../utils/exportCSV";
+import exportAnalyticsPDF from "../utils/exportPDF";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/dashboard/Sidebar";
 import Navbar from "../components/dashboard/Navbar";
@@ -44,6 +48,22 @@ function Analytics() {
             Insights into your spending habits.
           </p>
           
+         <div className="flex justify-end gap-4 mb-6">
+
+  <button
+    onClick={() => exportAnalyticsPDF(analytics)}
+    className="bg-gradient-to-r from-purple-600 to-cyan-500 text-white px-5 py-3 rounded-xl hover:scale-105 transition"
+  >
+    Export PDF
+  </button>
+
+  <button
+    onClick={() => exportCSV(analytics.expenses)}
+    className="bg-gradient-to-r from-purple-600 to-cyan-500 text-white px-5 py-3 rounded-xl hover:scale-105 transition">
+    Export CSV
+  </button>
+
+</div>
 
           {/* KPI Cards */}
 
@@ -74,6 +94,11 @@ function Analytics() {
             </div>
 
           </div>
+          <MonthComparisonCard
+  thisMonth={analytics.thisMonthTotal}
+  lastMonth={analytics.lastMonthTotal}
+  percentage={analytics.percentageChange}
+/>
           {/* Monthly Trend */}
 <div className="mt-8">
   <MonthlyTrendChart
@@ -95,9 +120,9 @@ function Analytics() {
     data={analytics?.paymentMethods || []}
   />
 
-  {/* <WeekdayChart
+  <WeekdayChart
     data={analytics?.weekdaySpend || []}
-  /> */}
+  />
 
 </div>
 
@@ -108,5 +133,5 @@ function Analytics() {
     
   );
 }
-
+// console.log(analytics);
 export default Analytics;
