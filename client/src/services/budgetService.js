@@ -4,7 +4,7 @@ const API = axios.create({
   baseURL: "http://localhost:5000/api/budgets",
 });
 
-// ================= GET BUDGETS =================
+// ================= GET ALL BUDGETS =================
 
 export const getBudgets = () => {
   const token = localStorage.getItem("token");
@@ -16,7 +16,7 @@ export const getBudgets = () => {
   });
 };
 
-// ================= GET SUMMARY =================
+// ================= GET BUDGET SUMMARY =================
 
 export const getBudgetSummary = () => {
   const token = localStorage.getItem("token");
@@ -40,7 +40,7 @@ export const addBudget = (budgetData) => {
   });
 };
 
-// ================= UPDATE =================
+// ================= UPDATE BUDGET =================
 
 export const updateBudget = (id, budgetData) => {
   const token = localStorage.getItem("token");
@@ -52,7 +52,7 @@ export const updateBudget = (id, budgetData) => {
   });
 };
 
-// ================= DELETE =================
+// ================= DELETE BUDGET =================
 
 export const deleteBudget = (id) => {
   const token = localStorage.getItem("token");
