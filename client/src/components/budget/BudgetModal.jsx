@@ -32,8 +32,6 @@ function BudgetModal({
   const [formData, setFormData] = useState({
     category: "",
     limit: "",
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
   });
 
   useEffect(() => {
@@ -41,15 +39,11 @@ function BudgetModal({
       setFormData({
         category: editingBudget.category,
         limit: editingBudget.limit,
-        month: editingBudget.month,
-        year: editingBudget.year,
       });
     } else {
       setFormData({
         category: "",
         limit: "",
-        month: new Date().getMonth() + 1,
-        year: new Date().getFullYear(),
       });
     }
   }, [editingBudget]);
@@ -122,55 +116,7 @@ function BudgetModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-
-  <div>
-    <label className="block text-slate-300 mb-2">
-      Month
-    </label>
-
-    <select
-      name="month"
-      value={formData.month}
-      onChange={handleChange}
-      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
-    >
-      {months.map((month) => (
-        <option
-          key={month.value}
-          value={month.value}
-        >
-          {month.label}
-        </option>
-      ))}
-    </select>
-  </div>
-
-  <div>
-    <label className="block text-slate-300 mb-2">
-      Year
-    </label>
-
-    <select
-      name="year"
-      value={formData.year}
-      onChange={handleChange}
-      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
-    >
-      {years.map((year) => (
-        <option
-          key={year}
-          value={year}
-        >
-          {year}
-        </option>
-      ))}
-    </select>
-  </div>
-
-</div>
-
-          <div className="flex justify-end gap-3 pt-4">
+           <div className="flex justify-end gap-3 pt-4">
 
             <button
               type="button"
