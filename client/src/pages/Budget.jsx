@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/dashboard/Sidebar";
 import Navbar from "../components/dashboard/Navbar";
-
+import BudgetChart from "../components/budget/BudgetChart";
 import BudgetSummary from "../components/budget/BudgetSummary";
 import BudgetCard from "../components/budget/BudgetCard";
 import BudgetModal from "../components/budget/BudgetModal";
@@ -106,9 +106,6 @@ function Budget() {
           <div className="flex justify-between items-center flex-wrap gap-4">
 
             <div>
-              <h1 className="text-4xl font-bold text-white">
-                Budget Management
-              </h1>
 
               <p className="text-slate-400 mt-2">
                 Manage your monthly spending limits.
@@ -177,7 +174,7 @@ function Budget() {
           <div className="mt-8">
             <BudgetSummary budgets={budgets} />
           </div>
-
+<BudgetChart budgets={budgets} />
           {/* Budget Cards */}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">

@@ -7,19 +7,25 @@ function BudgetCard({
   const limit = budget.limit || 0;
 
   const percentage =
-    limit > 0
-      ? Math.min((spent / limit) * 100, 100)
-      : 0;
+  limit > 0
+    ? (spent / limit) * 100
+    : 0;
 
-  const remaining = limit - spent;
+ const remaining = limit - spent;
 
-  let color = "bg-green-500";
+let color = "bg-green-500";
+let status = "On Track";
+let badgeColor = "bg-green-500";
 
-  if (percentage >= 90) {
-    color = "bg-red-500";
-  } else if (percentage >= 70) {
-    color = "bg-yellow-500";
-  }
+if (percentage >= 100) {
+  color = "bg-red-500";
+  status = "Over Budget";
+  badgeColor = "bg-red-500";
+} else if (percentage >= 80) {
+  color = "bg-yellow-500";
+  status = "Warning";
+  badgeColor = "bg-yellow-500";
+}
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-cyan-500 transition-all">
@@ -87,8 +93,8 @@ function BudgetCard({
     <div
       className={`h-full rounded-full transition-all duration-500 ${color}`}
       style={{
-        width: `${percentage}%`,
-      }}
+  width: `${Math.min(percentage, 100)}%`,
+}}
     />
 
   </div>
@@ -157,6 +163,31 @@ function BudgetCard({
         </div>
 
       </div>
+
+
+      {/* Budget Alert */}
+
+{percentage >= 100 ? (
+  <div className="mt-5 rounded-xl bg-red-900/30 border border-red-500 p-3">
+    <p className="text-red-400 font-medium">
+      🚨 Budget exceeded by ₹
+      {Math.abs(remaining).toLocaleString("en-IN")}
+    </p>
+  </div>
+) : percentage >= 80 ? (
+  <div className="mt-5 rounded-xl bg-yellow-900/30 border border-yellow-500 p-3">
+    <p className="text-yellow-300 font-medium">
+      ⚠️ Only ₹
+      {remaining.toLocaleString("en-IN")} remaining.
+    </p>
+  </div>
+) : (
+  <div className="mt-5 rounded-xl bg-green-900/20 border border-green-500 p-3">
+    <p className="text-green-400 font-medium">
+      ✅ You're within your budget.
+    </p>
+  </div>
+)}
 
       {/* Buttons */}
 
