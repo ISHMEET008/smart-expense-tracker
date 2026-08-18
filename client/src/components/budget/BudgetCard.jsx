@@ -26,34 +26,89 @@ function BudgetCard({
 
       {/* Header */}
 
-      <div className="flex justify-between items-center">
+<div className="flex justify-between items-start">
 
-        <h2 className="text-xl font-semibold text-white">
-          {budget.category}
-        </h2>
+  <div>
 
-        <span className="text-cyan-400 font-bold">
-          ₹{limit.toLocaleString("en-IN")}
-        </span>
+    <h2 className="text-2xl font-bold text-white">
+      {budget.category}
+    </h2>
 
-      </div>
+    <p className="text-slate-400 text-sm mt-1">
+      Budget Limit
+    </p>
+
+  </div>
+
+  <div className="text-right">
+
+    <h3 className="text-cyan-400 text-2xl font-bold">
+      ₹{limit.toLocaleString("en-IN")}
+    </h3>
+
+    <span
+      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+        percentage >= 100
+          ? "bg-red-500/20 text-red-400"
+          : percentage >= 80
+          ? "bg-yellow-500/20 text-yellow-400"
+          : "bg-green-500/20 text-green-400"
+      }`}
+    >
+      {percentage >= 100
+        ? "Exceeded"
+        : percentage >= 80
+        ? "Near Limit"
+        : "On Track"}
+    </span>
+
+  </div>
+
+</div>
 
       {/* Progress */}
 
-      <div className="mt-5">
+     <div className="mt-6">
 
-        <div className="w-full h-3 rounded-full bg-slate-700 overflow-hidden">
+  <div className="flex justify-between text-sm mb-2">
 
-          <div
-            className={`h-full rounded-full ${color}`}
-            style={{
-              width: `${percentage}%`,
-            }}
-          />
+    <span className="text-slate-400">
+      Budget Usage
+    </span>
 
-        </div>
+    <span className="text-white font-semibold">
+      {percentage.toFixed(1)}%
+    </span>
 
-      </div>
+  </div>
+
+  <div className="w-full h-3 rounded-full bg-slate-800 overflow-hidden">
+
+    <div
+      className={`h-full rounded-full transition-all duration-500 ${color}`}
+      style={{
+        width: `${percentage}%`,
+      }}
+    />
+
+  </div>
+
+</div>
+
+<div className="mt-5 flex justify-between items-center">
+
+  <p className="text-slate-400 text-sm">
+    Budget Period
+  </p>
+
+  <span className="text-cyan-400 font-medium">
+    {new Date(budget.year, budget.month - 1).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    })}
+  </span>
+
+</div>
 
       {/* Stats */}
 
@@ -111,14 +166,14 @@ function BudgetCard({
           onClick={() => onEdit(budget)}
           className="flex-1 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-medium transition"
         >
-          Edit
+          ✏ Edit
         </button>
 
         <button
           onClick={() => onDelete(budget._id)}
           className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-medium transition"
         >
-          Delete
+         🗑 Delete
         </button>
 
       </div>

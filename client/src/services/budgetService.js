@@ -18,10 +18,16 @@ export const getBudgets = () => {
 
 // ================= GET BUDGET SUMMARY =================
 
-export const getBudgetSummary = () => {
+export const getBudgetSummary = (month, year) => {
   const token = localStorage.getItem("token");
 
-  return API.get("/summary", {
+  let url = "/summary";
+
+  if (month && year) {
+    url += `?month=${month}&year=${year}`;
+  }
+
+  return API.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
