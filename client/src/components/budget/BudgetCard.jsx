@@ -1,8 +1,29 @@
+import {
+  FaUtensils,
+  FaShoppingBag,
+  FaPlane,
+  FaBolt,
+  FaFilm,
+  FaHeartbeat,
+  FaBook,
+  FaWallet,
+} from "react-icons/fa";
+
 function BudgetCard({
   budget,
   onEdit,
   onDelete,
 }) {
+  const categoryIcons = {
+  Food: <FaUtensils />,
+  Shopping: <FaShoppingBag />,
+  Travel: <FaPlane />,
+  Bills: <FaBolt />,
+  Entertainment: <FaFilm />,
+  Health: <FaHeartbeat />,
+  Education: <FaBook />,
+  Other: <FaWallet />,
+};
   const spent = budget.spent || 0;
   const limit = budget.limit || 0;
 
@@ -36,6 +57,14 @@ if (percentage >= 100) {
 
   <div>
 
+    <div className="flex items-center gap-3">
+
+  <div className="w-11 h-11 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 text-lg">
+    {categoryIcons[budget.category] || <FaWallet />}
+  </div>
+
+  <div>
+
     <h2 className="text-2xl font-bold text-white">
       {budget.category}
     </h2>
@@ -43,6 +72,12 @@ if (percentage >= 100) {
     <p className="text-slate-400 text-sm mt-1">
       Budget Limit
     </p>
+
+  </div>
+
+</div>
+
+   
 
   </div>
 
@@ -135,18 +170,20 @@ if (percentage >= 100) {
         <div>
 
           <p className="text-slate-400 text-sm">
-            Remaining
-          </p>
+  {remaining >= 0 ? "Remaining" : "Over Budget"}
+</p>
 
           <p
-            className={`font-semibold ${
-              remaining >= 0
-                ? "text-green-400"
-                : "text-red-400"
-            }`}
-          >
-            ₹{remaining.toLocaleString("en-IN")}
-          </p>
+  className={`font-semibold ${
+    remaining >= 0
+      ? "text-green-400"
+      : "text-red-400"
+  }`}
+>
+  {remaining >= 0
+    ? `₹${remaining.toLocaleString("en-IN")}`
+    : `₹${Math.abs(remaining).toLocaleString("en-IN")} Over`}
+</p>
 
         </div>
 
