@@ -34,6 +34,18 @@ function BudgetCard({
 
  const remaining = limit - spent;
 
+ const today = new Date();
+
+const budgetEndDate = new Date(
+  budget.year,
+  budget.month,
+  0
+);
+
+const daysLeft = Math.ceil(
+  (budgetEndDate - today) / (1000 * 60 * 60 * 24)
+);
+
 let color = "bg-green-500";
 let status = "On Track";
 let badgeColor = "bg-green-500";
@@ -96,11 +108,13 @@ if (percentage >= 100) {
           : "bg-green-500/20 text-green-400"
       }`}
     >
-      {percentage >= 100
-        ? "Exceeded"
-        : percentage >= 80
-        ? "Near Limit"
-        : "On Track"}
+      {
+  percentage >= 100
+    ? `Over ₹${Math.abs(remaining).toLocaleString("en-IN")}`
+    : percentage >= 80
+    ? `₹${remaining.toLocaleString("en-IN")} Left`
+    : "On Track"
+}
     </span>
 
   </div>
@@ -111,49 +125,62 @@ if (percentage >= 100) {
 
      <div className="mt-6">
 
-  <div className="flex justify-between text-sm mb-2">
+  <div className="flex justify-between items-center mb-2">
 
-    <span className="text-slate-400">
+    <p className="text-slate-400 text-sm">
       Budget Usage
-    </span>
+    </p>
 
-    <span className="text-white font-semibold">
-      {percentage.toFixed(1)}%
-    </span>
+    <p className="text-cyan-400 font-semibold">
+      {percentage.toFixed(0)}%
+    </p>
 
   </div>
 
-  <div className="w-full h-3 rounded-full bg-slate-800 overflow-hidden">
+  <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
 
     <div
-      className={`h-full rounded-full transition-all duration-500 ${color}`}
+      className={`h-full rounded-full transition-all duration-700 ${color}`}
       style={{
-  width: `${Math.min(percentage, 100)}%`,
-}}
+        width: `${percentage}%`,
+      }}
     />
 
   </div>
 
 </div>
 
-<div className="mt-5 flex justify-between items-center">
 
-  <p className="text-slate-400 text-sm">
-    Budget Period
-  </p>
+<div className="mt-3 flex items-center gap-2 text-sm">
 
-  <span className="text-cyan-400 font-medium">
-    {new Date(budget.year, budget.month - 1).toLocaleString("default", {
-      month: "long",
-      year: "numeric",
-    })}
+  <span className="text-lg">🕒</span>
+
+  <span
+    className={`font-medium ${
+      daysLeft > 10
+        ? "text-green-400"
+        : daysLeft > 5
+        ? "text-yellow-400"
+        : "text-red-400"
+    }`}
+  >
+    {daysLeft > 0
+      ? `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left in ${
+          new Date(
+            budget.year,
+            budget.month - 1
+          ).toLocaleString("default", {
+            month: "long",
+          })
+        }`
+      : "Budget period ended"}
   </span>
 
 </div>
 
       {/* Stats */}
 
-      <div className="flex justify-between mt-5">
+    <div className="grid grid-cols-2 gap-6 mt-5">
 
         <div>
 
@@ -187,17 +214,7 @@ if (percentage >= 100) {
 
         </div>
 
-        <div>
-
-          <p className="text-slate-400 text-sm">
-            Used
-          </p>
-
-          <p className="text-cyan-400 font-semibold">
-            {percentage.toFixed(0)}%
-          </p>
-
-        </div>
+       
 
       </div>
 

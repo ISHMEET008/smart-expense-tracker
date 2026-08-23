@@ -4,7 +4,7 @@ import Navbar from "../components/dashboard/Navbar";
 import BudgetSummary from "../components/budget/BudgetSummary";
 import BudgetCard from "../components/budget/BudgetCard";
 import BudgetModal from "../components/budget/BudgetModal";
-
+import BudgetInsights from "../components/budget/BudgetInsights";
 import {
   getBudgetSummary,
   addBudget,
@@ -362,7 +362,7 @@ const onTrackCount = budgets.filter((budget) => {
             )}
 
           </div>
-
+<BudgetInsights budgets={budgets} />
           <BudgetModal
             isOpen={isModalOpen}
             onClose={() => {
