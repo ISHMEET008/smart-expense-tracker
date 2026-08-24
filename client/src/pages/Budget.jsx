@@ -23,6 +23,9 @@ function Budget() {
 
   const today = new Date();
 
+  const currentMonth = today.getMonth() + 1;
+const currentYear = today.getFullYear();
+
   const [selectedMonth, setSelectedMonth] = useState(
     today.getMonth() + 1
   );

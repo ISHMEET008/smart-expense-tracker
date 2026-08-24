@@ -12,19 +12,47 @@ import { getAnalytics } from "../services/expenseService";
 
 function Analytics() {
   const [analytics, setAnalytics] = useState(null);
+  const today = new Date();
+
+const [selectedMonth, setSelectedMonth] = useState(
+  today.getMonth() + 1
+);
+
+const [selectedYear, setSelectedYear] = useState(
+  today.getFullYear()
+);
+
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
   useEffect(() => {
-    fetchAnalytics();
-  }, []);
+  fetchAnalytics();
+}, [selectedMonth, selectedYear]);
 
   const fetchAnalytics = async () => {
-    try {
-      const response = await getAnalytics();
-      setAnalytics(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  try {
+    const response = await getAnalytics(
+      selectedMonth,
+      selectedYear
+    );
+
+    setAnalytics(response.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   if (!analytics) {
     return (
@@ -47,6 +75,52 @@ function Analytics() {
           <p className="text-slate-400 mt-2">
             Insights into your spending habits.
           </p>
+          <div className="flex gap-4 mt-6">
+
+  <select
+    value={selectedMonth}
+    onChange={(e) =>
+      setSelectedMonth(Number(e.target.value))
+    }
+    className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white"
+  >
+    {months
+      .filter((_, index) => {
+        if (selectedYear === today.getFullYear()) {
+          return index + 1 <= today.getMonth() + 1;
+        }
+        return true;
+      })
+      .map((month, index) => (
+        <option
+          key={month}
+          value={index + 1}
+        >
+          {month}
+        </option>
+      ))}
+  </select>
+
+  <select
+    value={selectedYear}
+    onChange={(e) =>
+      setSelectedYear(Number(e.target.value))
+    }
+    className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-white"
+  >
+    {[today.getFullYear(), today.getFullYear() - 1].map(
+      (year) => (
+        <option
+          key={year}
+          value={year}
+        >
+          {year}
+        </option>
+      )
+    )}
+  </select>
+
+</div>
           
          <div className="flex justify-end gap-4 mb-6">
 

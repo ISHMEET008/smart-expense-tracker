@@ -92,12 +92,15 @@ export const getExpenseReport = (period) => {
 };
 
 
-export const getAnalytics = () => {
+export const getAnalytics = (month, year) => {
   const token = localStorage.getItem("token");
 
-  return API.get("/analytics", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return API.get(
+    `/analytics?month=${month}&year=${year}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };

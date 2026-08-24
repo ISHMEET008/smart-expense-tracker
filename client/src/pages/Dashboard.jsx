@@ -30,6 +30,7 @@ function Dashboard() {
   const [editingExpense, setEditingExpense] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expenses, setExpenses] = useState([]);
+  
 
   const [summary, setSummary] = useState({
     income: 0,

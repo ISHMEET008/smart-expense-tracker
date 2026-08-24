@@ -45,7 +45,19 @@ const budgetEndDate = new Date(
 const daysLeft = Math.ceil(
   (budgetEndDate - today) / (1000 * 60 * 60 * 24)
 );
+const daysPassed = today.getDate();
 
+const daysInMonth = new Date(
+  budget.year,
+  budget.month,
+  0
+).getDate();
+
+const projectedSpend =
+  (spent / Math.max(daysPassed, 1)) * daysInMonth;
+
+const projectedOver =
+  Math.max(projectedSpend - limit, 0);
 let color = "bg-green-500";
 let status = "On Track";
 let badgeColor = "bg-green-500";
@@ -83,6 +95,7 @@ if (percentage >= 100) {
 
     <p className="text-slate-400 text-sm mt-1">
       Budget Limit
+      
     </p>
 
   </div>
@@ -100,23 +113,20 @@ if (percentage >= 100) {
     </h3>
 
     <span
-      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-        percentage >= 100
-          ? "bg-red-500/20 text-red-400"
-          : percentage >= 80
-          ? "bg-yellow-500/20 text-yellow-400"
-          : "bg-green-500/20 text-green-400"
-      }`}
-    >
-      {
-  percentage >= 100
-    ? `Over ₹${Math.abs(remaining).toLocaleString("en-IN")}`
-    : percentage >= 80
-    ? `₹${remaining.toLocaleString("en-IN")} Left`
-    : "On Track"
-}
-    </span>
-
+  className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+    percentage >= 100
+      ? "bg-red-500/20 text-red-400"
+      : percentage >= 80
+      ? "bg-yellow-500/20 text-yellow-400"
+      : "bg-green-500/20 text-green-400"
+  }`}
+>
+  {percentage >= 100
+  ? "🚨 Over Budget"
+  : percentage >= 80
+  ? `₹${remaining.toLocaleString("en-IN")} Left`
+  : "✅ On Track"}
+</span>
   </div>
 
 </div>
@@ -128,7 +138,7 @@ if (percentage >= 100) {
   <div className="flex justify-between items-center mb-2">
 
     <p className="text-slate-400 text-sm">
-      Budget Usage
+      Spent So Far
     </p>
 
     <p className="text-cyan-400 font-semibold">
@@ -208,8 +218,8 @@ if (percentage >= 100) {
   }`}
 >
   {remaining >= 0
-    ? `₹${remaining.toLocaleString("en-IN")}`
-    : `₹${Math.abs(remaining).toLocaleString("en-IN")} Over`}
+  ? `₹${remaining.toLocaleString("en-IN")}`
+  : `₹${Math.abs(remaining).toLocaleString("en-IN")}`}
 </p>
 
         </div>
@@ -222,41 +232,54 @@ if (percentage >= 100) {
       {/* Budget Alert */}
 
 {percentage >= 100 ? (
-  <div className="mt-5 rounded-xl bg-red-900/30 border border-red-500 p-3">
-    <p className="text-red-400 font-medium">
+ <div className="mt-5 rounded-xl bg-red-500/10 border border-red-400/40 p-4">
+    <p className="flex items-center gap-2 text-red-300 font-semibold">
       🚨 Budget exceeded by ₹
+      
       {Math.abs(remaining).toLocaleString("en-IN")}
     </p>
   </div>
 ) : percentage >= 80 ? (
   <div className="mt-5 rounded-xl bg-yellow-900/30 border border-yellow-500 p-3">
     <p className="text-yellow-300 font-medium">
-      ⚠️ Only ₹
-      {remaining.toLocaleString("en-IN")} remaining.
+      ⚠️ Only ₹{remaining.toLocaleString("en-IN")} remaining.
+
+<p className="text-yellow-200 text-sm mt-2">
+Try limiting spending for the remaining {daysLeft} day{daysLeft !== 1 ? "s" : ""}.
+</p>
     </p>
   </div>
 ) : (
   <div className="mt-5 rounded-xl bg-green-900/20 border border-green-500 p-3">
-    <p className="text-green-400 font-medium">
-      ✅ You're within your budget.
-    </p>
-  </div>
+
+  <p className="text-green-400 font-semibold">
+    ✅ Great job!
+  </p>
+
+  <p className="text-slate-300 text-sm mt-1">
+    You're managing this budget well.
+    {percentage <= 20
+      ? " Spending is still very low."
+      : " Keep spending at this pace."}
+  </p>
+
+</div>
 )}
 
       {/* Buttons */}
 
-      <div className="flex gap-3 mt-6">
+     <div className="flex justify-between items-center mt-6">
 
         <button
           onClick={() => onEdit(budget)}
-          className="flex-1 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-medium transition"
+          className="px-5 py-2 rounded-xl border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 transition"
         >
           ✏ Edit
         </button>
 
         <button
           onClick={() => onDelete(budget._id)}
-          className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-medium transition"
+          className="px-4 py-2 rounded-xl border border-red-500 text-red-400 hover:bg-red-500/10 transition"
         >
          🗑 Delete
         </button>
