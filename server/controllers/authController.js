@@ -1,3 +1,4 @@
+const Income = require("../models/Income");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
@@ -54,6 +55,7 @@ const registerUser = async (req, res) => {
       message: error.message,
     });
   }
+
 };
 
 
@@ -107,7 +109,6 @@ const loginUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        income: user.income,
       },
     });
 
@@ -124,36 +125,43 @@ const loginUser = async (req, res) => {
 
 const updateIncome = async (req, res) => {
   try {
-    const { income } = req.body;
+    const { amount } = req.body;
 
-    if (income === undefined || income < 0) {
+    const now = new Date();
+
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    if (!amount || amount <= 0) {
       return res.status(400).json({
         success: false,
         message: "Please enter a valid income",
       });
     }
 
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      { income },
-      { new: true }
+    const income = await Income.findOneAndUpdate(
+      {
+        user: req.user.id,
+        month,
+        year,
+      },
+      {
+        amount,
+      },
+      {
+        new: true,
+        upsert: true,
+      }
     );
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
 
     res.status(200).json({
       success: true,
-      message: "Income updated successfully",
-      income: user.income,
+      message: "Income saved successfully",
+      income,
     });
 
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     res.status(500).json({
       success: false,
@@ -162,6 +170,37 @@ const updateIncome = async (req, res) => {
   }
 };
 
+// ================= GET CURRENT MONTH INCOME =================
+
+const getIncome = async (req, res) => {
+  try {
+    const now = new Date();
+
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    const income = await Income.findOne({
+      user: req.user.id,
+      month,
+      year,
+    });
+
+    res.status(200).json({
+      success: true,
+      income: income ? income.amount : null,
+      month,
+      year,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 // ================= EXPORTS =================
 
@@ -169,4 +208,5 @@ module.exports = {
   registerUser,
   loginUser,
   updateIncome,
+   getIncome,
 };

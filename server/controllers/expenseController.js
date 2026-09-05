@@ -38,7 +38,7 @@ const addExpense = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
 
     res.status(500).json({
       success: false,
@@ -52,9 +52,22 @@ const addExpense = async (req, res) => {
 
 const getExpenses = async (req, res) => {
   try {
+    
+    // console.log("Query:", req.query);
 
-    const month = Number(req.query.month);
-const year = Number(req.query.year);
+const now = new Date();
+
+const today = new Date();
+
+const month = req.query.month
+  ? Number(req.query.month)
+  : today.getMonth() + 1;
+
+const year = req.query.year
+  ? Number(req.query.year)
+  : today.getFullYear();
+
+// console.log(month, year);
 
 const startDate = new Date(year, month - 1, 1);
 
@@ -64,7 +77,8 @@ const endDate = new Date(
   0,
   23,
   59,
-  59
+  59,
+  999
 );
 
 const expenses = await Expense.find({
@@ -81,7 +95,7 @@ const expenses = await Expense.find({
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
 
     res.status(500).json({
       success: false,
@@ -137,7 +151,7 @@ const updateExpense = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
 
     res.status(500).json({
       success: false,
@@ -173,7 +187,7 @@ const deleteExpense = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
 
     res.status(500).json({
       success: false,
@@ -197,16 +211,54 @@ const getFinancialSummary = async (req, res) => {
       });
     }
 
-    const expenses = await Expense.find({
-      user: req.user.id,
-    });
+   const today = new Date();
+
+const month = req.query.month
+  ? Number(req.query.month)
+  : today.getMonth() + 1;
+
+const year = req.query.year
+  ? Number(req.query.year)
+  : today.getFullYear();
+
+  if (isNaN(month) || isNaN(year)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid month/year",
+  });
+}
+
+const startDate = new Date(year, month - 1, 1);
+
+const endDate = new Date(
+  year,
+  month,
+  0,
+  23,
+  59,
+  59,
+  999
+);
+
+const expenses = await Expense.find({
+  user: req.user.id,
+  date: {
+    $gte: startDate,
+    $lte: endDate,
+  },
+});
 
     const totalExpenses = expenses.reduce(
       (total, expense) => total + expense.amount,
       0
     );
 
-    const currentBalance = user.income - totalExpenses;
+    const income = user.income || 0;
+
+const currentBalance =
+  income > 0
+    ? income - totalExpenses
+    : null;
 
     res.status(200).json({
       success: true,
@@ -216,7 +268,7 @@ const getFinancialSummary = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
 
     res.status(500).json({
       success: false,
@@ -312,7 +364,7 @@ expenses
     });
 
   } catch (error) {
-    console.error(error);
+    // console.error(error);
 
     res.status(500).json({
       success: false,
@@ -330,32 +382,36 @@ expenses
 
 const getAnalytics = async (req, res) => {
   try {
-    const month = Number(req.query.month);
-const year = Number(req.query.year);
 
-const startDate = new Date(
-  year,
-  month - 1,
-  1
-);
+    // const today = new Date();
 
-const endDate = new Date(
-  year,
-  month,
-  0,
-  23,
-  59,
-  59
-);
+    const month = req.query.month
+      ? Number(req.query.month)
+      : today.getMonth() + 1;
 
-const expenses = await Expense.find({
-  user: req.user.id,
-  date: {
-    $gte: startDate,
-    $lte: endDate,
-  },
-});
+    const year = req.query.year
+      ? Number(req.query.year)
+      : today.getFullYear();
 
+    const startDate = new Date(year, month - 1, 1);
+
+    const endDate = new Date(
+      year,
+      month,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+
+    const expenses = await Expense.find({
+      user: req.user.id,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
     // ================= TOTALS =================
 
     const totalExpenses = expenses.reduce(
@@ -614,7 +670,7 @@ const lastMonthTotal = previousMonthExpenses.reduce(
   insights,
 });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
 
     res.status(500).json({
       success: false,
