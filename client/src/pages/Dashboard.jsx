@@ -141,7 +141,15 @@ const getPaymentIcon = (method) => {
     : expenses.filter(
         (expense) => expense.category === selectedCategory
       );
+const hour = new Date().getHours();
 
+let greeting = "Good Evening";
+
+if (hour < 12) {
+  greeting = "Good Morning";
+} else if (hour < 17) {
+  greeting = "Good Afternoon";
+}
   return (
     <div className="flex bg-slate-950 min-h-screen">
       <Sidebar />
@@ -155,7 +163,7 @@ const getPaymentIcon = (method) => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-white text-4xl font-bold">
-                Good Evening 👋
+                {greeting} 👋
               </h2>
 
               <p className="text-slate-400 mt-2">
