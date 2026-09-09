@@ -61,7 +61,7 @@ const months = [
       </div>
     );
   }
-
+console.log(analytics.monthlyTrend);
   return (
     <div className="flex bg-slate-950 min-h-screen">
       <Sidebar />
