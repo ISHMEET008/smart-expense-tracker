@@ -69,11 +69,19 @@ const currentYear = today.getFullYear();
   // Save Budget
   const handleSave = async (formData) => {
     try {
-      if (editingBudget) {
-        await updateBudget(editingBudget._id, formData);
-      } else {
-        await addBudget(formData);
-      }
+     if (editingBudget) {
+  await updateBudget(editingBudget._id, {
+    ...formData,
+    month: selectedMonth,
+    year: selectedYear,
+  });
+} else {
+  await addBudget({
+    ...formData,
+    month: selectedMonth,
+    year: selectedYear,
+  });
+}
 
       setIsModalOpen(false);
       setEditingBudget(null);

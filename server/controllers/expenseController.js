@@ -1,6 +1,6 @@
 const Expense = require("../models/Expense");
 const User = require("../models/User");
-
+const mongoose = require("mongoose");
 // ================= ADD EXPENSE =================
 
 const addExpense = async (req, res) => {
@@ -383,7 +383,7 @@ expenses
 const getAnalytics = async (req, res) => {
   try {
 
-    // const today = new Date();
+    const today = new Date();
 
     const month = req.query.month
       ? Number(req.query.month)
@@ -411,7 +411,8 @@ const getAnalytics = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
-    });
+    }).sort({ date: 1 });
+
     // ================= TOTALS =================
 
     const totalExpenses = expenses.reduce(
@@ -421,7 +422,7 @@ const getAnalytics = async (req, res) => {
 
     const highestExpense =
       expenses.length > 0
-        ? Math.max(...expenses.map((e) => Number(e.amount)))
+        ? Math.max(...expenses.map(e => Number(e.amount)))
         : 0;
 
     const averageExpense =
@@ -429,30 +430,31 @@ const getAnalytics = async (req, res) => {
         ? totalExpenses / expenses.length
         : 0;
 
-  const today = new Date();
+    const daysPassed =
+      month === today.getMonth() + 1 &&
+      year === today.getFullYear()
+        ? today.getDate()
+        : new Date(year, month, 0).getDate();
 
-const daysPassed =
-  month === today.getMonth() + 1 &&
-  year === today.getFullYear()
-    ? today.getDate()
-    : new Date(year, month, 0).getDate();
-
-const averageDailySpend =
-  totalExpenses / Math.max(daysPassed, 1);
+    const averageDailySpend =
+      totalExpenses / Math.max(daysPassed, 1);
 
     // ================= PAYMENT METHODS =================
 
     const paymentTotals = {};
 
     expenses.forEach((expense) => {
+
       const method = expense.paymentMethod || "Other";
 
       paymentTotals[method] =
-        (paymentTotals[method] || 0) + Number(expense.amount);
+        (paymentTotals[method] || 0) +
+        Number(expense.amount);
+
     });
 
     const paymentMethods = Object.keys(paymentTotals)
-      .map((method) => ({
+      .map(method => ({
         method,
         amount: paymentTotals[method],
       }))
@@ -463,14 +465,17 @@ const averageDailySpend =
     const categoryTotals = {};
 
     expenses.forEach((expense) => {
+
       const category = expense.category || "Other";
 
       categoryTotals[category] =
-        (categoryTotals[category] || 0) + Number(expense.amount);
+        (categoryTotals[category] || 0) +
+        Number(expense.amount);
+
     });
 
     const topCategories = Object.keys(categoryTotals)
-      .map((category) => ({
+      .map(category => ({
         category,
         amount: categoryTotals[category],
       }))
@@ -478,65 +483,64 @@ const averageDailySpend =
 
     // ================= MONTHLY TREND =================
 
+       // ================= MONTHLY TREND =================
+
     const monthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
 
-const monthlyTrend = [];
+    const monthlyTrend = [];
 
-for (let i = 5; i >= 0; i--) {
-  const date = new Date(year, month - 1 - i, 1);
+    for (let i = 5; i >= 0; i--) {
 
-  const monthName = monthNames[date.getMonth()];
-  const trendYear = date.getFullYear();
+      const current = new Date(year, month - 1 - i, 1);
 
-  const amount = await Expense.aggregate([
-    {
-      $match: {
+      const trendStart = new Date(
+        current.getFullYear(),
+        current.getMonth(),
+        1
+      );
+
+      const trendEnd = new Date(
+        current.getFullYear(),
+        current.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999
+      );
+
+      const trendExpenses = await Expense.find({
         user: req.user.id,
         date: {
-          $gte: new Date(
-            trendYear,
-            date.getMonth(),
-            1
-          ),
-          $lte: new Date(
-            trendYear,
-            date.getMonth() + 1,
-            0,
-            23,
-            59,
-            59
-          ),
+          $gte: trendStart,
+          $lte: trendEnd,
         },
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        total: {
-          $sum: "$amount",
-        },
-      },
-    },
-  ]);
+      });
 
-  monthlyTrend.push({
-    month: monthName,
-    amount: amount.length ? amount[0].total : 0,
-  });
-}
+      const total = trendExpenses.reduce(
+        (sum, expense) => sum + Number(expense.amount),
+        0
+      );
+
+      monthlyTrend.push({
+        month: monthNames[current.getMonth()],
+        amount: total,
+      });
+
+    }
 
     // ================= WEEKDAY SPENDING =================
 
@@ -561,9 +565,12 @@ for (let i = 5; i >= 0; i--) {
     };
 
     expenses.forEach((expense) => {
-      const day = weekdayNames[new Date(expense.date).getDay()];
+
+      const day =
+        weekdayNames[new Date(expense.date).getDay()];
 
       weekdayTotals[day] += Number(expense.amount);
+
     });
 
     const weekdaySpend = weekdayNames.map((day) => ({
@@ -573,55 +580,49 @@ for (let i = 5; i >= 0; i--) {
 
     // ================= MONTH COMPARISON =================
 
-   const currentMonth = month - 1;
-const currentYear = year;
+    const previousMonthStart = new Date(
+      year,
+      month - 2,
+      1
+    );
 
-const lastMonth =
-  currentMonth === 0
-    ? 11
-    : currentMonth - 1;
+    const previousMonthEnd = new Date(
+      year,
+      month - 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
 
-const lastMonthYear =
-  currentMonth === 0
-    ? currentYear - 1
-    : currentYear;
+    const previousExpenses = await Expense.find({
+      user: req.user.id,
+      date: {
+        $gte: previousMonthStart,
+        $lte: previousMonthEnd,
+      },
+    });
 
-   const previousMonthStart = new Date(
-  lastMonthYear,
-  lastMonth,
-  1
-);
+    const thisMonthTotal = totalExpenses;
 
-const previousMonthEnd = new Date(
-  lastMonthYear,
-  lastMonth + 1,
-  0,
-  23,
-  59,
-  59
-);
-
-const previousMonthExpenses = await Expense.find({
-  user: req.user.id,
-  date: {
-    $gte: previousMonthStart,
-    $lte: previousMonthEnd,
-  },
-});
-
-const thisMonthTotal = totalExpenses;
-
-const lastMonthTotal = previousMonthExpenses.reduce(
-  (sum, expense) => sum + Number(expense.amount),
-  0
-);
+    const lastMonthTotal = previousExpenses.reduce(
+      (sum, expense) => sum + Number(expense.amount),
+      0
+    );
 
     const percentageChange =
       lastMonthTotal === 0
         ? 100
-        : ((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100;
+        : (
+            ((thisMonthTotal - lastMonthTotal) /
+              lastMonthTotal) *
+            100
+          ).toFixed(1);
 
     // ================= SMART INSIGHTS =================
+
+       // ================= SMART INSIGHTS =================
 
     const insights = [];
 
@@ -647,38 +648,61 @@ const lastMonthTotal = previousMonthExpenses.reduce(
       );
     }
 
+    if (percentageChange > 0) {
+      insights.push(
+        `Your spending increased by ${percentageChange}% compared to last month.`
+      );
+    } else if (percentageChange < 0) {
+      insights.push(
+        `Great! Your spending decreased by ${Math.abs(
+          percentageChange
+        )}% compared to last month.`
+      );
+    }
+
     // ================= RESPONSE =================
 
     res.status(200).json({
-  success: true,
+      success: true,
 
-  totalExpenses,
-  highestExpense,
-  averageExpense,
-  averageDailySpend,
-  expenses,
+      expenses,
 
-  paymentMethods,
-  topCategories,
-  monthlyTrend,
-  weekdaySpend,
+      totalExpenses,
 
-  thisMonthTotal,
-  lastMonthTotal,
-  percentageChange,
+      highestExpense,
 
-  insights,
-});
+      averageExpense,
+
+      averageDailySpend,
+
+      paymentMethods,
+
+      topCategories,
+
+      monthlyTrend,
+
+      weekdaySpend,
+
+      thisMonthTotal,
+
+      lastMonthTotal,
+
+      percentageChange: Number(percentageChange),
+
+      insights,
+    });
+
   } catch (error) {
-    // console.log(error);
+
+    console.error("Analytics Error:", error);
 
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
-
 module.exports = {
   addExpense,
   getExpenses,

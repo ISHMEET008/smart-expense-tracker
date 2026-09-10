@@ -1,10 +1,12 @@
 const Budget = require("../models/Budget");
 const Expense = require("../models/Expense");
-
+const mongoose = require("mongoose");
 // ================= ADD BUDGET =================
 
 const addBudget = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+console.log("USER:", req.user);
    const {
   category,
   limit,
@@ -20,7 +22,7 @@ const addBudget = async (req, res) => {
 
     // Check if budget already exists
     const existingBudget = await Budget.findOne({
-      user: req.user.id,
+      user: new mongoose.Types.ObjectId(req.user.id),
       category,
       month,
       year,
@@ -34,7 +36,7 @@ const addBudget = async (req, res) => {
     }
 
     const budget = await Budget.create({
-      user: req.user.id,
+     user: new mongoose.Types.ObjectId(req.user.id),
       category,
       limit,
       month,
@@ -65,7 +67,7 @@ const getBudgets = async (req, res) => {
 const year = Number(req.query.year);
 
 const filter = {
-  user: req.user.id,
+user: new mongoose.Types.ObjectId(req.user.id),
 };
 
 if (month && year) {
@@ -98,7 +100,7 @@ const updateBudget = async (req, res) => {
   try {
     const budget = await Budget.findOne({
       _id: req.params.id,
-      user: req.user.id,
+     user: new mongoose.Types.ObjectId(req.user.id),
     });
 
     if (!budget) {
@@ -134,7 +136,7 @@ const deleteBudget = async (req, res) => {
   try {
     const budget = await Budget.findOneAndDelete({
       _id: req.params.id,
-      user: req.user.id,
+    user: new mongoose.Types.ObjectId(req.user.id),
     });
 
     if (!budget) {
@@ -171,7 +173,7 @@ const month = Number(req.query.month);
 const year = Number(req.query.year);
 
 const filter = {
-  user: req.user.id,
+ user: new mongoose.Types.ObjectId(req.user.id),
 };
 
 if (month && year) {
@@ -199,7 +201,7 @@ const budgets = await Budget.find(filter);
       );
 
       const expenses = await Expense.find({
-        user: req.user.id,
+      user: new mongoose.Types.ObjectId(req.user.id),
         category: budget.category,
         date: {
           $gte: startDate,
