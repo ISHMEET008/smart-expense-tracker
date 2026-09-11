@@ -2,6 +2,9 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL: "http://localhost:5000/api/budgets",
+  // baseURL: `${import.meta.env.VITE_API_URL}/expenses`,   // in expenseService.js
+// baseURL: `${import.meta.env.VITE_API_URL}/budgets`,    // in budgetService.js
+// baseURL: `${import.meta.env.VITE_API_URL}/auth`,       // in authService.js
 });
 
 // ================= GET ALL BUDGETS =================

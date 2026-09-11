@@ -9,7 +9,7 @@ function StatsCards({ summary }) {
         </p>
 
         <h3 className="text-white text-3xl font-bold mt-2">
-          ₹{summary.currentBalance.toLocaleString("en-IN")}
+          ₹{Number(summary?.currentBalance ?? 0).toLocaleString("en-IN")}
         </h3>
       </div>
 
@@ -20,7 +20,7 @@ function StatsCards({ summary }) {
         </p>
 
         <h3 className="text-green-400 text-3xl font-bold mt-2">
-          ₹{summary.income.toLocaleString("en-IN")}
+          ₹{Number(summary?.income ?? 0).toLocaleString("en-IN")}
         </h3>
       </div>
 
@@ -31,7 +31,7 @@ function StatsCards({ summary }) {
         </p>
 
         <h3 className="text-red-400 text-3xl font-bold mt-2">
-          ₹{summary.totalExpenses.toLocaleString("en-IN")}
+          ₹{Number(summary?.totalExpenses ?? 0).toLocaleString("en-IN")}
         </h3>
       </div>
 
