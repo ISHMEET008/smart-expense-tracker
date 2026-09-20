@@ -200,9 +200,12 @@ const deleteExpense = async (req, res) => {
 
 // ================= FINANCIAL SUMMARY =================
 
+// ================= FINANCIAL SUMMARY =================
+
+// ================= FINANCIAL SUMMARY =================
+
 const getFinancialSummary = async (req, res) => {
   try {
-
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -212,64 +215,65 @@ const getFinancialSummary = async (req, res) => {
       });
     }
 
-   const today = new Date();
+    // Monthly income from Financial Setup
+    const income = Number(user.monthlyIncome || 0);
 
-const month = req.query.month
-  ? Number(req.query.month)
-  : today.getMonth() + 1;
+    // Essential expenses from Financial Setup
+    const essentials = user.monthlyEssentials || {};
 
-const year = req.query.year
-  ? Number(req.query.year)
-  : today.getFullYear();
+    const essentialExpenses =
+      Number(essentials.rent || 0) +
+      Number(essentials.food || 0) +
+      Number(essentials.bills || 0) +
+      Number(essentials.transport || 0) +
+      Number(essentials.other || 0);
 
-  if (isNaN(month) || isNaN(year)) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid month/year",
-  });
-}
+    // Current month
+    const today = new Date();
 
-const startDate = new Date(year, month - 1, 1);
+    const startDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
 
-const endDate = new Date(
-  year,
-  month,
-  0,
-  23,
-  59,
-  59,
-  999
-);
+    const endDate = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
 
-const expenses = await Expense.find({
-  user: req.user.id,
-  date: {
-    $gte: startDate,
-    $lte: endDate,
-  },
-});
+    // Actual expenses added by the user
+    const expenses = await Expense.find({
+      user: req.user.id,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
 
-    const totalExpenses = expenses.reduce(
-      (total, expense) => total + expense.amount,
+    const actualExpenses = expenses.reduce(
+      (total, expense) => total + Number(expense.amount),
       0
     );
 
-    const income = user.income || 0;
-
-const currentBalance =
-  income > 0
-    ? income - totalExpenses
-    : null;
+    // Final balance
+    const currentBalance =
+      income - essentialExpenses - actualExpenses;
 
     res.status(200).json({
       success: true,
-      income: user.income,
-      totalExpenses,
+      income,
+      essentialExpenses,
       currentBalance,
     });
 
   } catch (error) {
-    // console.error(error);
+    console.error("Financial Summary Error:", error);
 
     res.status(500).json({
       success: false,
@@ -277,7 +281,6 @@ const currentBalance =
     });
   }
 };
-
 
 // ================= REPORT =================
 

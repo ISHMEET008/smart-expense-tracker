@@ -32,11 +32,11 @@ function Dashboard() {
   const [expenses, setExpenses] = useState([]);
   
 
-  const [summary, setSummary] = useState({
-    income: 0,
-    totalExpenses: 0,
-    currentBalance: 0,
-  });
+ const [summary, setSummary] = useState({
+  income: 0,
+  essentialExpenses: 0,
+  currentBalance: 0,
+});
 
   const [period, setPeriod] = useState("monthly");
 

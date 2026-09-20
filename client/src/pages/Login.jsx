@@ -29,6 +29,9 @@ function Login() {
 
     try {
       setLoading(true);
+      console.log("LOGIN FORM DATA:", formData);
+
+// const response = await loginUser(formData);
 
       const response = await loginUser(formData);
 
@@ -42,11 +45,11 @@ function Login() {
 
       toast.success("Login Successful 🎉");
 
-          navigate("/dashboard", {
-      state: {
-        isNewUser: false,
-      },
-    });
+if (response.data.user.financialSetupCompleted) {
+  navigate("/dashboard");
+} else {
+  navigate("/financial-setup");
+}
     } catch (error) {
       console.log("ERROR:", error);
       console.log("STATUS:", error.response?.status);

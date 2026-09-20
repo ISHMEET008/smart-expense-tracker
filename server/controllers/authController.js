@@ -5,11 +5,12 @@ const bcrypt = require("bcrypt");
 
 // ================= REGISTER =================
 
+// ================= REGISTER =================
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if all fields are provided
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -17,7 +18,6 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -27,37 +27,45 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
     });
 
-    res.status(201).json({
+    // Create token for the newly registered user
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(201).json({
       success: true,
       message: "User Registered Successfully",
+      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        financialSetupCompleted: user.financialSetupCompleted,
       },
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("REGISTER ERROR:", error);
 
     return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
-
 };
 
+
+// ================= LOGIN =================
 
 // ================= LOGIN =================
 
@@ -68,11 +76,7 @@ const loginUser = async (req, res) => {
 
     const { email, password } = req.body;
 
-    console.log("Finding user...");
-
     const user = await User.findOne({ email });
-
-    console.log("User:", user);
 
     if (!user) {
       return res.status(400).json({
@@ -81,11 +85,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    console.log("Comparing password...");
-
     const isMatch = await bcrypt.compare(password, user.password);
-
-    console.log("Password Match:", isMatch);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -94,8 +94,6 @@ const loginUser = async (req, res) => {
       });
     }
 
-    console.log("Creating token...");
-
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
@@ -103,24 +101,28 @@ const loginUser = async (req, res) => {
     );
 
     console.log("Login Success");
+    console.log("User ID:", user._id);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       token,
-      user,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        financialSetupCompleted: user.financialSetupCompleted,
+      },
     });
 
-  } catch (err) {
-    console.log("LOGIN ERROR");
-    console.log(err);
+  } catch (error) {
+    console.log("LOGIN ERROR:", error);
 
     return res.status(500).json({
       success: false,
-      message: err.message,
+      message: error.message,
     });
   }
 };
-
 
 // ================= UPDATE INCOME =================
 

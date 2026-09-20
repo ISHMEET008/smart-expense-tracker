@@ -51,13 +51,16 @@ export default function Register() {
         password: formData.password,
       });
 
-      toast.success(response.data.message);
+     toast.success(response.data.message);
 
-      navigate("/dashboard", {
-  state: {
-    isNewUser: true,
-  },
-});
+localStorage.setItem("token", response.data.token);
+localStorage.setItem(
+  "user",
+  JSON.stringify(response.data.user)
+);
+
+navigate("/financial-setup");
+
 
     } catch (error) {
 
